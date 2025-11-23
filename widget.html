@@ -1,0 +1,255 @@
+<!doctype html>
+<html>
+<head>
+    <title>BotMan Widget</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- BotMan Widget CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/assets/css/chat.min.css">
+    
+    <style>
+        /* Custom Widget Styles */
+        body {
+            font-family: 'Inter', sans-serif !important;
+        }
+
+        /* Chat Messages */
+        .message {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* User Messages */
+        .message.to {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+            border-radius: 18px 18px 4px 18px !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+        }
+
+        /* Bot Messages */
+        .message.from {
+            background: #f1f5f9 !important;
+            border-radius: 18px 18px 18px 4px !important;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+            color: #1e293b !important;
+        }
+
+        /* Typing Indicator */
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 12px 16px;
+            background: #f1f5f9;
+            border-radius: 18px;
+            width: fit-content;
+        }
+
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+                opacity: 0.7;
+            }
+            30% {
+                transform: translateY(-10px);
+                opacity: 1;
+            }
+        }
+
+        /* Input Area */
+        .chatForm {
+            border-top: 1px solid #e2e8f0 !important;
+            background: white !important;
+            padding: 12px !important;
+        }
+
+        .messageForm {
+            border: 2px solid #e2e8f0 !important;
+            border-radius: 24px !important;
+            transition: all 0.3s ease !important;
+        }
+
+        .messageForm:focus-within {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1) !important;
+        }
+
+        input[type="text"] {
+            font-family: 'Inter', sans-serif !important;
+            font-size: 14px !important;
+        }
+
+        /* Send Button */
+        button[type="submit"] {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+            border: none !important;
+            border-radius: 50% !important;
+            width: 40px !important;
+            height: 40px !important;
+            transition: all 0.3s ease !important;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+        }
+
+        button[type="submit"]:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 0 6px 16px rgba(99, 102, 241, 0.4) !important;
+        }
+
+        button[type="submit"]:active {
+            transform: scale(0.95) !important;
+        }
+
+        /* Header */
+        .chat-header {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+            padding: 16px !important;
+            border-radius: 0 !important;
+        }
+
+        .chat-header h3 {
+            color: white !important;
+            font-weight: 600 !important;
+        }
+
+        /* Scrollbar */
+        .messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Avatar */
+        .avatar {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6) !important;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.3) !important;
+        }
+
+        /* Time Stamp */
+        .time {
+            font-size: 11px !important;
+            color: #94a3b8 !important;
+            margin-top: 4px !important;
+        }
+
+        /* Custom Animations for Messages */
+        .message {
+            transition: all 0.3s ease;
+        }
+
+        .message:hover {
+            transform: translateX(2px);
+        }
+
+        /* Emoji Support */
+        .message {
+            font-size: 15px;
+            line-height: 1.5;
+        }
+
+        /* Link Styling */
+        .message a {
+            color: #6366f1;
+            text-decoration: underline;
+        }
+
+        /* Code Block */
+        .message code {
+            background: rgba(99, 102, 241, 0.1);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+        }
+
+        /* Bold Text */
+        .message strong {
+            font-weight: 600;
+            color: #1e293b;
+        }
+    </style>
+</head>
+<body>
+    <script id="botmanWidget" src="https://cdn.jsdelivr.net/npm/botman-web-widget@0/build/js/chat.js"></script>
+    
+    <script>
+        // Add smooth scroll to bottom on new message
+        window.addEventListener('load', function() {
+            const observer = new MutationObserver(function(mutations) {
+                const messages = document.querySelector('.messages');
+                if (messages) {
+                    messages.scrollTo({
+                        top: messages.scrollHeight,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+
+            setTimeout(function() {
+                const messagesContainer = document.querySelector('.messages');
+                if (messagesContainer) {
+                    observer.observe(messagesContainer, {
+                        childList: true,
+                        subtree: true
+                    });
+                }
+            }, 1000);
+        });
+
+        // Add enter key support
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                const input = document.querySelector('input[type="text"]');
+                if (input) {
+                    input.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            const form = input.closest('form');
+                            if (form) {
+                                form.dispatchEvent(new Event('submit'));
+                            }
+                        }
+                    });
+                }
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

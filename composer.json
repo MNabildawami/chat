@@ -1,0 +1,9 @@
+{
+    "require": {
+        "botman/botman": "^2.8",
+        "botman/driver-web": "^1.5",
+        "botman/driver-telegram": "^2.0",
+        "symfony/cache": "^6.4",
+        "illuminate/support": "^10.49"
+    }
+}
