@@ -10,7 +10,6 @@ use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Drivers\DriverManager;
 use BotMan\BotMan\Cache\SymfonyCache;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
-use BotMan\Drivers\Telegram\TelegramDriver;
 
 // ========== GANTI TOKEN DI SINI ==========
 $config = [
@@ -23,7 +22,11 @@ $config = [
 // Load Telegram Driver
 DriverManager::loadDriver(\BotMan\Drivers\Telegram\TelegramDriver::class);
 
-// Setup cache
+// Setup cache (buat folder cache jika belum ada)
+if (!file_exists(__DIR__.'/cache')) {
+    mkdir(__DIR__.'/cache', 0777, true);
+}
+
 $adapter = new FilesystemAdapter('', 0, __DIR__.'/cache');
 $botman = BotManFactory::create($config, new SymfonyCache($adapter));
 
@@ -34,7 +37,6 @@ $botman->hears('/start|start', function (BotMan $bot) {
     
     $bot->typesAndWaits(1);
     
-    // Kirim pesan selamat datang dengan format HTML
     $bot->sendRequest('sendMessage', [
         'chat_id' => $bot->getUser()->getId(),
         'text' => "🤖 <b>Selamat Datang, {$firstName}!</b>\n\n" .
@@ -61,7 +63,13 @@ $botman->hears('/help|help|bantuan', function (BotMan $bot) {
                 "• <code>jalan [nama] nomor [no]</code> - Info alamat\n" .
                 "• <code>pesan [angka]</code> - Pesan item\n\n" .
                 
-                "<b>🔹 Fitur Lain:</b>\n" .
+                "<b>🔹 Media:</b>\n" .
+                "• <code>logo</code> - Kirim gambar\n" .
+                "• <code>video</code> - Kirim video\n" .
+                "• <code>audio</code> - Kirim audio\n" .
+                "• <code>pdf</code> - Kirim file PDF\n\n" .
+                
+                "<b>🔹 Utilitas:</b>\n" .
                 "• <code>jam</code> - Cek waktu sekarang\n" .
                 "• <code>tanggal</code> - Cek tanggal hari ini\n" .
                 "• <code>hitung [n] [+/-/x//] [n]</code> - Kalkulator\n\n" .
@@ -94,6 +102,7 @@ $botman->hears('/info|info', function (BotMan $bot) {
                 "✅ Pattern matching\n" .
                 "✅ Kalkulator sederhana\n" .
                 "✅ Info waktu real-time\n" .
+                "✅ Media sharing (foto, video, audio, file)\n" .
                 "✅ Fallback message\n\n" .
                 "Ketik /help untuk bantuan lengkap.";
     
@@ -171,7 +180,69 @@ $botman->hears('halo|hai|hello|hi', function (BotMan $bot) {
     ]);
 });
 
-// ==================== 3. PATTERN: saya {name} ====================
+// ==================== 3. KIRIM GAMBAR/LOGO ====================
+$botman->hears('logo|gambar', function (BotMan $bot) {
+    $bot->typesAndWaits(1);
+    
+    $bot->sendRequest('sendPhoto', [
+        'chat_id' => $bot->getUser()->getId(),
+        'photo' => 'https://botman.io/img/logo.png',
+        'caption' => '🤖 Ini logo BotMan!'
+    ]);
+});
+
+// ==================== 4. KIRIM VIDEO ====================
+$botman->hears('video', function (BotMan $bot) {
+    $bot->typesAndWaits(1);
+    
+    $bot->sendRequest('sendMessage', [
+        'chat_id' => $bot->getUser()->getId(),
+        'text' => '🎬 <b>Mengirim video...</b>',
+        'parse_mode' => 'HTML'
+    ]);
+    
+    $bot->sendRequest('sendVideo', [
+        'chat_id' => $bot->getUser()->getId(),
+        'video' => 'https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4',
+        'caption' => '🎥 Ini contoh video untuk Anda!'
+    ]);
+});
+
+// ==================== 5. KIRIM AUDIO ====================
+$botman->hears('audio|musik', function (BotMan $bot) {
+    $bot->typesAndWaits(1);
+    
+    $bot->sendRequest('sendMessage', [
+        'chat_id' => $bot->getUser()->getId(),
+        'text' => '🎵 <b>Mengirim audio...</b>',
+        'parse_mode' => 'HTML'
+    ]);
+    
+    $bot->sendRequest('sendAudio', [
+        'chat_id' => $bot->getUser()->getId(),
+        'audio' => 'https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3',
+        'caption' => '🎵 Ini contoh audio untuk Anda!'
+    ]);
+});
+
+// ==================== 6. KIRIM FILE PDF ====================
+$botman->hears('pdf|file|dokumen', function (BotMan $bot) {
+    $bot->typesAndWaits(1);
+    
+    $bot->sendRequest('sendMessage', [
+        'chat_id' => $bot->getUser()->getId(),
+        'text' => '📄 <b>Mengirim dokumen PDF...</b>',
+        'parse_mode' => 'HTML'
+    ]);
+    
+    $bot->sendRequest('sendDocument', [
+        'chat_id' => $bot->getUser()->getId(),
+        'document' => 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf',
+        'caption' => '📄 Ini contoh file PDF untuk Anda!'
+    ]);
+});
+
+// ==================== 7. PATTERN: saya {name} ====================
 $botman->hears('saya {name}', function ($bot, $name) {
     $bot->typesAndWaits(1);
     
@@ -184,7 +255,7 @@ $botman->hears('saya {name}', function ($bot, $name) {
     ]);
 });
 
-// ==================== 4. PATTERN: dari {city} ====================
+// ==================== 8. PATTERN: dari {city} ====================
 $botman->hears('dari {city}', function ($bot, $city) {
     $bot->typesAndWaits(1);
     
@@ -197,7 +268,7 @@ $botman->hears('dari {city}', function ($bot, $city) {
     ]);
 });
 
-// ==================== 5. PATTERN: jalan {address} nomor {number} ====================
+// ==================== 9. PATTERN: jalan {address} nomor {number} ====================
 $botman->hears('jalan {address} nomor {number}', function ($bot, $address, $number) {
     $bot->typesAndWaits(1);
     
@@ -211,11 +282,11 @@ $botman->hears('jalan {address} nomor {number}', function ($bot, $address, $numb
     ]);
 });
 
-// ==================== 6. REGEX: pesan [angka] ====================
+// ==================== 10. REGEX: pesan [angka] ====================
 $botman->hears('pesan ([0-9]+)', function ($bot, $number) {
     $bot->typesAndWaits(1);
     
-    $total = $number * 50000; // Asumsi harga per item 50rb
+    $total = $number * 50000;
     
     $text = "🛒 <b>PESANAN DITERIMA</b>\n\n" .
             "📦 <b>Jumlah Item:</b> " . $number . " unit\n" .
@@ -245,7 +316,7 @@ $botman->hears('pesan ([0-9]+)', function ($bot, $number) {
     ]);
 });
 
-// ==================== 7. WAKTU ====================
+// ==================== 11. WAKTU ====================
 $botman->hears('jam|waktu', function (BotMan $bot) {
     date_default_timezone_set('Asia/Jakarta');
     $time = date('H:i:s');
@@ -261,7 +332,7 @@ $botman->hears('jam|waktu', function (BotMan $bot) {
     ]);
 });
 
-// ==================== 8. TANGGAL ====================
+// ==================== 12. TANGGAL ====================
 $botman->hears('tanggal|hari ini', function (BotMan $bot) {
     date_default_timezone_set('Asia/Jakarta');
     $day = date('l');
@@ -294,7 +365,7 @@ $botman->hears('tanggal|hari ini', function (BotMan $bot) {
     ]);
 });
 
-// ==================== 9. KALKULATOR ====================
+// ==================== 13. KALKULATOR ====================
 $botman->hears('hitung {num1} {operator} {num2}', function ($bot, $num1, $operator, $num2) {
     $bot->typesAndWaits(1);
     
@@ -325,12 +396,18 @@ $botman->hears('hitung {num1} {operator} {num2}', function ($bot, $num1, $operat
                 $result = $num1 / $num2;
                 $operatorSymbol = '➗';
             } else {
-                $bot->reply('❌ Error: Tidak bisa membagi dengan nol!');
+                $bot->sendRequest('sendMessage', [
+                    'chat_id' => $bot->getUser()->getId(),
+                    'text' => '❌ Error: Tidak bisa membagi dengan nol!'
+                ]);
                 $valid = false;
             }
             break;
         default:
-            $bot->reply('❌ Operator tidak valid! Gunakan: +, -, x, atau /');
+            $bot->sendRequest('sendMessage', [
+                'chat_id' => $bot->getUser()->getId(),
+                'text' => '❌ Operator tidak valid! Gunakan: +, -, x, atau /'
+            ]);
             $valid = false;
     }
     
@@ -344,7 +421,7 @@ $botman->hears('hitung {num1} {operator} {num2}', function ($bot, $num1, $operat
     }
 });
 
-// ==================== 10. TERIMA KASIH ====================
+// ==================== 14. TERIMA KASIH ====================
 $botman->hears('terima kasih|makasih|thanks|thank you', function (BotMan $bot) {
     $bot->typesAndWaits(1);
     
@@ -362,7 +439,7 @@ $botman->hears('terima kasih|makasih|thanks|thank you', function (BotMan $bot) {
     ]);
 });
 
-// ==================== 11. SELAMAT TINGGAL ====================
+// ==================== 15. SELAMAT TINGGAL ====================
 $botman->hears('bye|dadah|sampai jumpa|selamat tinggal', function (BotMan $bot) {
     $firstName = $bot->getUser()->getFirstName();
     
